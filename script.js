@@ -1,17 +1,43 @@
 // duplicate marquees for seamless loop
 for(const id of ['mq','lt1','lt2']){const el=document.getElementById(id);if(el)el.innerHTML+=el.innerHTML;}
 
+// mobile menu
+const menuBtn=document.getElementById('menuBtn'),navList=document.getElementById('navList');
+if(menuBtn&&navList){
+  menuBtn.addEventListener('click',()=>{
+    const open=navList.classList.toggle('mobile-open');
+    menuBtn.classList.toggle('open',open);
+    menuBtn.setAttribute('aria-expanded',open?'true':'false');
+    document.body.style.overflow=open?'hidden':'';
+  });
+  navList.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+    navList.classList.remove('mobile-open');
+    menuBtn.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded','false');
+    document.body.style.overflow='';
+  }));
+  addEventListener('resize',()=>{
+    if(innerWidth>880){
+      navList.classList.remove('mobile-open');
+      menuBtn.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded','false');
+      document.body.style.overflow='';
+    }
+  });
+}
+
 // scroll progress + nav shrink
 const prog=document.getElementById('progress'),nav=document.getElementById('nav');
+const isSmallScreen=()=>innerWidth<=900;
 let ticking=false;
 function onScroll(){
   const h=document.documentElement;
   const p=h.scrollTop/(h.scrollHeight-h.clientHeight);
   prog.style.width=(p*100)+'%';
   nav.classList.toggle('tight',h.scrollTop>60);
-  // hero parallax
+  // hero parallax (skipped on small screens for smoother scrolling)
   const par=document.querySelector('[data-parallax]');
-  if(par&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+  if(par&&!isSmallScreen()&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
     par.style.transform='translate3d(0,'+(h.scrollTop*parseFloat(par.dataset.parallax))+'px,0) scale(1.08)';
   }
   ticking=false;
